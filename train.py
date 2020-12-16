@@ -12,10 +12,7 @@ import torch
 import numpy as np
 from src.utils import flatten, vizualize
 from collections import deque
-
 import time
-
-
 
 def train(opt): 
     
@@ -34,12 +31,9 @@ def train(opt):
                     opt.replay_memory_size, opt.batch_size, 'agent_procon_1', opt.load_checkpoint,
                     opt.saved_path, Environment())
     agent_2 = Agent(opt.gamma, opt.lr_actor, opt.lr_critic, input_dim_actor, input_dim_critic, num_agents, max_agents, max_actions,
-                    opt.replay_memory_size, opt.batch_size, 'agent_procon_2', opt.load_checkpoint,
+                    opt.replay_memory_size, opt.batch_size, 'agent_procon_2', False,
                     opt.saved_path, Environment())
-    if opt.load_checkpoint:
-        agent_1.load_models(0)
-        agent_2.load_models(0)
-        
+
     Loss_critic_value = deque(maxlen=1000)
     Loss_actor_value = deque(maxlen=1000)
     
@@ -72,30 +66,30 @@ def train(opt):
                 state_1 = agent_1.get_state_actor()
                 actions_1 = agent_1.select_action(state_1, epsilon)
                 
-                state_2 = agent_2.get_state_actor_2()
-                actions_2= agent_2.select_action_smart(state_2)
+                # state_2 = agent_2.get_state_actor_2()
+                # actions_2= agent_2.select_action_smart(state_2)
                 actions_2 = [0] * agent_2.num_agents
                 done = agent_1.learn(state_1, actions_1, actions_2, BGame, opt.show_screen)
-                # done = agent_2.learn(state_2, actions_2, actions_1, BGame, False)
+                # done = agent_2.learn(agent_2.get_state_actor(), actions_2, actions_1, BGame, False)
                 
                 if opt.show_screen:
                     pygame.display.update()
                 
-                for i in range(agent_1.num_agents):
-                    _state = agent_1.get_state_actor()
-                    a  = agent_1.target_actor(torch.from_numpy(np.array(
-                        flatten([_state]), dtype=np.float32)).to(agent_1.device)).data.to('cpu').numpy()
-                    for j in range(len(a)):
-                        a[j] = round(a[j], 4)
-                    print(a)
                 
                 Loss_critic_value.append(agent_1.critic_loss_value)
                 Loss_actor_value.append(agent_1.actor_loss_value)
                 
-                
-                print('Iteration :- ', _iter, ' Loss_actor :- ', agent_1.actor_loss_value,\
-                      ' Loss_critic :- ', agent_1.critic_loss_value)
-                print('Epsilon: {}'. format(epsilon))
+                if _iter % 10 == 0:
+                    for i in range(agent_1.num_agents):
+                        _state = agent_1.get_state_actor()
+                        a  = agent_1.actor(torch.from_numpy(np.array(
+                            flatten([_state]), dtype=np.float32)).to(agent_1.device)).data.to('cpu').numpy()
+                        for j in range(len(a)):
+                            a[j] = round(a[j], 6)
+                        print(a)
+                    print('Iteration :- ', _iter, ' Loss_actor :- ', agent_1.actor_loss_value,\
+                          ' Loss_critic :- ', agent_1.critic_loss_value)
+                # print('Epsilon: {}'. format(epsilon))
                 # f.write(str(agent_1.actor_loss_value) + ' ' + str(agent_1.critic_loss_value) + '\n')
                 if done:
                     break
@@ -108,8 +102,8 @@ def train(opt):
             f.close()
             ''' save models '''
             if opt.saved_checkpoint:
-                agent_1.save_models(0)
-                agent_2.save_models(0)
+                agent_1.save_models()
+                # agent_2.save_models()
             print("Time: {}". format(end - start))
             print("Score A/B: {}/{}". format(agent_1.env.score_mine, agent_1.env.score_opponent))
             

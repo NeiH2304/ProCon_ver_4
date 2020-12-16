@@ -46,27 +46,31 @@ class Agent():
         self.agent_name = agent_name
         self.use_cuda = torch.cuda.is_available()
         self.noise = utils.OrnsteinUhlenbeckActionNoise(self.action_dim)
-
-        self.actor = Actor(self.state_dim_actor, self.action_dim)
-        self.critic = Critic(self.state_dim_critic, self.action_dim, num_agent_lim)
-        
-        self.target_actor = copy(self.actor)
-        self.target_critic = copy(self.critic)
-        self.actor_optimizer = Adam(self.actor.parameters(), self.lr_a)
-        self.critic_optimizer = Adam(self.critic.parameters(), self.lr_c) 
         
         
         ''' Setup CUDA Environment'''
         self.device = 'cuda' if self.use_cuda else 'cpu'
-        if self.use_cuda:
-            self.actor.to(self.device)
-            self.target_actor.to(self.device)
-            self.critic.to(self.device)
-            self.target_critic.to(self.device)
         
+        if chkpoint:
+            self.load_models()
+        else:
+            self.actor = Actor(self.state_dim_actor, self.action_dim)
+            self.critic = Critic(self.state_dim_critic, self.action_dim, num_agent_lim)
+            
+            self.target_actor = copy(self.actor)
+            self.target_critic = copy(self.critic)
+            
+            if self.use_cuda:
+                self.actor.to(self.device)
+                self.target_actor.to(self.device)
+                self.critic.to(self.device)
+                self.target_critic.to(self.device)
+                utils.hard_update(self.target_actor, self.actor)
+                utils.hard_update(self.target_critic, self.critic)
+                
+        self.actor_optimizer = Adam(self.actor.parameters(), self.lr_a)
+        self.critic_optimizer = Adam(self.critic.parameters(), self.lr_c) 
         
-            utils.hard_update(self.target_actor, self.actor)
-            utils.hard_update(self.target_critic, self.critic)
         self.memories = ReplayBuffer(mem_size)
             
             
@@ -190,6 +194,7 @@ class Agent():
             scores[0] = mn
             for j in range(len(scores)):
                 scores[j] = (scores[j] - mn) / (mx - mn + 0.0001)
+    
             sum = np.sum(scores) + 0.0001
             for j in range(len(scores)):
                 scores[j] = scores[j] / sum
@@ -199,10 +204,10 @@ class Agent():
             valid, state, agent_pos, score = self.env.fit_action(agent, state, act, agent_pos_1, agent_pos_2)
             rewards.append(score - init_score)
             init_score = score
-            actions[agent] = act
+            actions[agent] = scores
             next_states.append(state)
             
-        return actions
+        return actions[0]
     
     def select_action_test_not_predict(self, state):
         actions = []
@@ -380,32 +385,28 @@ class Agent():
             actions_1, actions_2, BGame, show_screen)
         return done
 
-    def save_models(self, episode_count):
+    def save_models(self):
         """
         saves the target actor and critic models
         :param episode_count: the count of episodes iterated
-        :return:
+        :return:        
         """
-        torch.save(self.target_actor.state_dict(), './Models/target_actor.pt')
-        torch.save(self.target_critic.state_dict(), './Models/target_critic.pt')
-        torch.save(self.actor.state_dict(), './Models/actor.pt')
-        torch.save(self.critic.state_dict(), './Models/critic.pt')
+        torch.save(self.target_actor, './Models/target_actor.pt')
+        torch.save(self.target_critic, './Models/target_critic.pt')
+        torch.save(self.actor, './Models/actor.pt')
+        torch.save(self.critic, './Models/critic.pt')
         print('Models saved successfully')
         
-    def load_models(self, episode):
+    def load_models(self):
         """
         loads the target actor and critic models, and copies them onto actor and critic models
         :param episode: the count of episodes iterated (used to find the file name)
         :return:
         """
-        self.target_actor.load_state_dict(
-            torch.load('./Models/target_actor.pt', map_location = self.device))
-        self.target_critic.load_state_dict(
-            torch.load('./Models/target_critic.pt', map_location = self.device))
-        self.actor.load_state_dict(
-            torch.load('./Models/actor.pt', map_location = self.device))
-        self.critic.load_state_dict(
-            torch.load('./Models/critic.pt', map_location = self.device))
+        self.target_actor = torch.load('./Models/target_actor.pt', map_location = self.device)
+        self.target_critic = torch.load('./Models/target_critic.pt', map_location = self.device)
+        self.actor = torch.load('./Models/actor.pt', map_location = self.device)
+        self.critic = torch.load('./Models/critic.pt', map_location = self.device)
         
         self.target_actor.eval()
         self.target_critic.eval()
