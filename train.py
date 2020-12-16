@@ -34,8 +34,8 @@ def train(opt):
                     opt.replay_memory_size, opt.batch_size, 'agent_procon_2', False,
                     opt.saved_path, Environment())
 
-    Loss_critic_value = deque(maxlen=1000)
-    Loss_actor_value = deque(maxlen=1000)
+    Loss_critic_value = deque(maxlen=10000)
+    Loss_actor_value = deque(maxlen=10000)
     
     for _ep in range(opt.n_epochs):
         '''' Read input state '''
@@ -79,7 +79,7 @@ def train(opt):
                 Loss_critic_value.append(agent_1.critic_loss_value)
                 Loss_actor_value.append(agent_1.actor_loss_value)
                 
-                if _iter % 10 == 0:
+                if _iter % 20 == 0:
                     for i in range(agent_1.num_agents):
                         _state = agent_1.get_state_actor()
                         a  = agent_1.actor(torch.from_numpy(np.array(
