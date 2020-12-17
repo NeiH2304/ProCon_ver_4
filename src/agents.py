@@ -368,10 +368,15 @@ class Agent():
 
     def learn(self, state, actions_1, actions_2, BGame, show_screen):
         # act = [actions_1.argmax()]
-        act = choices([i for i in range(9)], actions_1) 
+        actions = copy(actions_1)
+        for i in range(9):
+            actions[i] = actions[i] ** 3
+            
+        act = choices([i for i in range(9)], actions) 
         next_state, reward, done, remaining_turns = self.env.next_frame(
             act, actions_2, BGame, show_screen)
-        
+        if act == 0:
+            reward -= 3
         # action = self.form_action_predict(actions_1)
         state = flatten(state)
         next_state = flatten([next_state[0], next_state[1][0], next_state[2][0]])
