@@ -21,7 +21,7 @@ def get_args():
     parser.add_argument("--lr_critic", type=float, default=1e-6)
     parser.add_argument("--gamma", type=float, default=0.9)
     parser.add_argument("--discount", type=float, default=1)   
-    parser.add_argument("--initial_epsilon", type=float, default=0.1)
+    parser.add_argument("--initial_epsilon", type=float, default=0.001)
     parser.add_argument("--final_epsilon", type=float, default=1e-4)
     parser.add_argument("--num_iters", type=int, default=20000)
     parser.add_argument("--replay_memory_size", type=int, default=10000,
@@ -31,7 +31,7 @@ def get_args():
     parser.add_argument("--n_epochs", type=str, default=1000)
     parser.add_argument("--log_path", type=str, default="tensorboard")
     parser.add_argument("--saved_path", type=str, default="trained_models")
-    parser.add_argument("--show_screen", type=str, default=True)
+    parser.add_argument("--show_screen", type=str, default=False)
     parser.add_argument("--load_checkpoint", type=str, default=True)
     parser.add_argument("--saved_checkpoint", type=str, default=True)   
     

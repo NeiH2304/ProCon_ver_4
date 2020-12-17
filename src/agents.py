@@ -367,7 +367,8 @@ class Agent():
         return flatten(_acts)
 
     def learn(self, state, actions_1, actions_2, BGame, show_screen):
-        act = choices([i for i in range(9)], actions_1) 
+        act = [actions_1.argmax()]
+        # act = choices([i for i in range(9)], actions_1) 
         next_state, reward, done, remaining_turns = self.env.next_frame(
             act, actions_2, BGame, show_screen)
         
