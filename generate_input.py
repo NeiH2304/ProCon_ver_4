@@ -22,7 +22,7 @@ for i in range(2000):
             score_matrix[i][j] =  value
             score_matrix[m - i - 1][n - j - 1] = value
     
-    turn = random.randint(30, 100)
+    turn = random.randint(60, 200)
     
     num_agens = 1
     
