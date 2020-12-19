@@ -29,7 +29,7 @@ class Agent():
         self.iter = 0
         self.lr_a = lr_a
         self.lr_c = lr_c
-        self.tau = 0.001
+        self.tau = 0.01
         self.steps_done = 0
         self.nrand_action = 0
         self.gamma = gamma
@@ -103,6 +103,9 @@ class Agent():
         Samples a random batch from replay memory and performs optimization
         :return:
         """
+        if self.memories.len < self.batch_size:
+            return
+        
         s, a, r, ns = self.memories.sample(self.batch_size)    
         
         s = Variable(torch.from_numpy(s).to(self.device), requires_grad=True)
@@ -117,24 +120,25 @@ class Agent():
         a2 = self.target_actor.forward(ns).detach()
         next_val = torch.squeeze(self.target_critic.forward(ns, a2).detach())
         y_expected = r + self.gamma * next_val
-        y_predicted = torch.squeeze(self.critic.forward(s, a))
+        y_predicted = 0 + torch.squeeze(self.critic.forward(s, a))
         ''' compute critic loss, and update the critic '''
         loss_critic = F.smooth_l1_loss(y_predicted, y_expected)
         self.critic_optimizer.zero_grad()
         loss_critic.backward()
         self.critic_optimizer.step()
-        # ---------------------- optimize actor ----------------------[]
+        ''' ---------------------- optimize actor ----------------------'''
         _a = self.actor.forward(s)
-        loss_actor = -1 * torch.mean(self.critic.forward(s, _a))
+        loss_actor = -1 * torch.sum(self.critic.forward(s, _a))
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
         self.actor_optimizer.step()
+        # for parameter in self.actor.parameters():
+        #     print(parameter.grad)
         utils.soft_update(self.target_actor, self.actor, self.tau)
         utils.soft_update(self.target_critic, self.critic, self.tau)
         
         self.actor_loss_value = -loss_actor.to('cpu').data.numpy()
         self.critic_loss_value = loss_critic.to('cpu').data.numpy()
-        self.iter += 1
         
     def get_agent_state(self, agents_pos, agent):
         agent_state = []
@@ -375,11 +379,12 @@ class Agent():
         act = choices([i for i in range(9)], actions) 
         next_state, reward, done, remaining_turns = self.env.next_frame(
             act, actions_2, BGame, show_screen)
-        if act == 0:
+        if act[0] == 0:
             reward -= 3
         # action = self.form_action_predict(actions_1)
         state = flatten(state)
         next_state = flatten([next_state[0], next_state[1][0], next_state[2][0]])
+        # print(next_state)
         self.memories.store_transition(state, actions_1, reward, next_state)
             
         self.optimize()

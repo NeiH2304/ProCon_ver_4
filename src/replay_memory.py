@@ -29,10 +29,8 @@ class ReplayBuffer():
         batch = []
         batch_size = min(batch_size, self.len)
         batch = random.sample(self.buffer, batch_size)
-        
         s_arr = np.float32([arr[0] for arr in batch])
         a_arr = np.float32([arr[1] for arr in batch])
         r_arr = np.float32([arr[2] for arr in batch])
         ns_arr = np.float32([arr[3] for arr in batch])
-        
         return s_arr, a_arr, r_arr, ns_arr
