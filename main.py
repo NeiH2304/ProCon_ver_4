@@ -17,8 +17,8 @@ def get_args():
     parser.add_argument("--image_size", type=int, default=84, help="The common width and height for all images")
     parser.add_argument("--batch_size", type=int, default=128, help="The number of state per batch")
     parser.add_argument("--optimizer", type=str, choices=["sgd", "adam"], default="adam")
-    parser.add_argument("--lr_actor", type=float, default=1e-5)
-    parser.add_argument("--lr_critic", type=float, default=1e-5)
+    parser.add_argument("--lr_actor", type=float, default=1e-6)
+    parser.add_argument("--lr_critic", type=float, default=1e-6)
     parser.add_argument("--gamma", type=float, default=0.9)
     parser.add_argument("--discount", type=float, default=1)   
     parser.add_argument("--initial_epsilon", type=float, default=0.1)
@@ -41,7 +41,6 @@ def get_args():
 
 if __name__ == "__main__":
     opt = get_args()
-    # print(opt.)
     if opt.run == "test":
         _test(opt)
     if opt.run == "train":
