@@ -20,8 +20,8 @@ def train(opt):
     n_maps = opt.n_maps
     data = Data.Read_Input(n_maps)
     BGame = BoardGame(opt.show_screen)
-    input_dim_actor = 1200
-    input_dim_critic = 1200
+    input_dim_actor = 450
+    input_dim_critic = 450
     max_agents = 8
     max_actions = 9
     num_agents = len(data[0][3])
@@ -40,6 +40,7 @@ def train(opt):
     for _ep in range(opt.n_epochs):
         '''' Read input state '''
         map_id = random.randint(0, 555)
+        map_id= 0
         _map = dcopy(data[map_id])
         print('Training_epochs: {} -- map_id: {}'.format(_ep + 1, map_id))
         h, w, score_matrix, coord_agens_1, coord_agens_2,\

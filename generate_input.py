@@ -4,8 +4,8 @@ import random
 for i in range(2000):
     file_name = 'Input_File/inp_file_' + str(i) + '.txt'
     f = open(file_name, 'w')
-    m = random.randint(20, 20)
-    n = random.randint(20, 20)
+    m = random.randint(5, 5)
+    n = random.randint(5, 5)
         
     score_matrix = []
     mx = random.randint(3, 30)
@@ -22,7 +22,7 @@ for i in range(2000):
             score_matrix[i][j] =  value
             score_matrix[m - i - 1][n - j - 1] = value
     
-    turn = random.randint(60, 200)
+    turn = random.randint(10, 20)
     
     num_agens = 1
     

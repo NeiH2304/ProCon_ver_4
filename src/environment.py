@@ -5,7 +5,7 @@ class Environment(object):
 
     def __init__(self, height = 0, width = 0, score_matrix = [[]], agent_pos_1 = [[]],
                  agent_pos_2 = [[]], treasures = [], walls = [], turns = 0, conquer_matrix = [[], []]):
-        self.MAX_SIZE = 20
+        self.MAX_SIZE = 5
         self.width = width
         self.height = height
         self.score_matrix = score_matrix

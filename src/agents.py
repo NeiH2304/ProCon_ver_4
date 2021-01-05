@@ -22,6 +22,7 @@ class Agent():
     def __init__(self, gamma, lr_a, lr_c, state_dim_actor, state_dim_critic, num_agents, num_agent_lim, action_dim,
                  mem_size, batch_size, agent_name, chkpoint, chkpt_dir, env = None):
         
+        self.MAP_SIZE = 5
         self.state_dim_actor = state_dim_actor
         self.state_dim_critic = state_dim_critic
         self.action_dim = action_dim
@@ -142,8 +143,8 @@ class Agent():
         
     def get_agent_state(self, agents_pos, agent):
         agent_state = []
-        for i in range(20):
-            agent_state.append([0] * 20)
+        for i in range(self.MAP_SIZE):
+            agent_state.append([0] * self.MAP_SIZE)
         
         x, y = agents_pos[agent]
         agent_state[x][y] = 1
@@ -343,9 +344,9 @@ class Agent():
         all_matrix = []
         for k in range(8):
             matrix = []
-            for i in range(20):
-                matrix.append([0] * 20)
-                for j in range(20):
+            for i in range(self.MAP_SIZE):
+                matrix.append([0] * self.MAP_SIZE)
+                for j in range(self.MAP_SIZE):
                     if agents_matrix[i][j] == k:
                         matrix[i][j] = 1
                 
