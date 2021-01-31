@@ -94,9 +94,9 @@ def train(opt):
                 # f.write(str(agent_1.actor_loss_value) + ' ' + str(agent_1.critic_loss_value) + '\n')
                 if done:
                     break
-            
-            vizualize(Loss_critic_value, 'Loss_critic_value', 'red')
-            vizualize(Loss_actor_value, 'Loss_actor_value', 'blue')
+            if _game % 5 == 0:
+                vizualize(Loss_critic_value, 'Loss_critic_value', 'red')
+                vizualize(Loss_actor_value, 'Loss_actor_value', 'blue')
             if opt.show_screen:
                 BGame.restart()
             end = time.time()

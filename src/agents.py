@@ -130,7 +130,6 @@ class Agent():
         ''' ---------------------- optimize actor ----------------------'''
         _a = self.actor.forward(s)
         loss_actor = -1 * torch.sum(self.critic.forward(s, _a))
-        print(torch.sum(self.critic.forward(s, _a)))
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
         self.actor_optimizer.step()
