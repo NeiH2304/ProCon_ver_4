@@ -12,7 +12,7 @@ def fanin_init(size, fanin=None):
 
 class Critic(nn.Module):
 
-	def __init__(self, state_dim, _action_dim, num_agent):
+	def __init__(self, state_dim, action_dim):
 		"""
 		:param state_dim: Dimension of input state (int)
 		:param action_dim: Dimension of input action (int)
@@ -21,20 +21,20 @@ class Critic(nn.Module):
 		super(Critic, self).__init__()
 
 		self.state_dim = state_dim
-		self.action_dim = _action_dim
+		self.action_dim = action_dim
 
-		self.fcs1 = nn.Linear(state_dim,1024)
+		self.fcs1 = nn.Linear(state_dim,256)
 		self.fcs1.weight.data = fanin_init(self.fcs1.weight.data.size())
-		self.fcs2 = nn.Linear(1024,512)
+		self.fcs2 = nn.Linear(256,128)
 		self.fcs2.weight.data = fanin_init(self.fcs2.weight.data.size())
 
-		self.fca1 = nn.Linear(self.action_dim, 128)
+		self.fca1 = nn.Linear(action_dim,128)
 		self.fca1.weight.data = fanin_init(self.fca1.weight.data.size())
 
-		self.fc2 = nn.Linear(640, 128)
+		self.fc2 = nn.Linear(256,128)
 		self.fc2.weight.data = fanin_init(self.fc2.weight.data.size())
 
-		self.fc3 = nn.Linear(128, 1)
+		self.fc3 = nn.Linear(128,1)
 		self.fc3.weight.data.uniform_(-EPS,EPS)
 
 	def forward(self, state, action):
@@ -53,12 +53,11 @@ class Critic(nn.Module):
 		x = self.fc3(x)
 
 		return x
-    
 
 
 class Actor(nn.Module):
 
-	def __init__(self, state_dim, action_dim):
+	def __init__(self, state_dim, action_dim, action_lim):
 		"""
 		:param state_dim: Dimension of input state (int)
 		:param action_dim: Dimension of output action (int)
@@ -69,17 +68,18 @@ class Actor(nn.Module):
 
 		self.state_dim = state_dim
 		self.action_dim = action_dim
+		self.action_lim = action_lim
 
-		self.fc1 = nn.Linear(state_dim, 1024)
+		self.fc1 = nn.Linear(state_dim,256)
 		self.fc1.weight.data = fanin_init(self.fc1.weight.data.size())
 
-		self.fc2 = nn.Linear(1024, 512)
+		self.fc2 = nn.Linear(256,128)
 		self.fc2.weight.data = fanin_init(self.fc2.weight.data.size())
 
-		self.fc3 = nn.Linear(512, 256)
+		self.fc3 = nn.Linear(128,64)
 		self.fc3.weight.data = fanin_init(self.fc3.weight.data.size())
 
-		self.fc4 = nn.Linear(256, action_dim)
+		self.fc4 = nn.Linear(64,action_dim)
 		self.fc4.weight.data.uniform_(-EPS,EPS)
 
 	def forward(self, state):
@@ -94,7 +94,8 @@ class Actor(nn.Module):
 		x = F.relu(self.fc1(state))
 		x = F.relu(self.fc2(x))
 		x = F.relu(self.fc3(x))
-		action = F.softmax(self.fc4(x), -1)
+		action = F.softmax(self.fc4(x))
+
 		return action
 
 

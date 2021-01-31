@@ -8,6 +8,7 @@ import argparse
 from train import train
 from test_game import _test
 from interactive import interactive
+from test_model import test_env
 
 def get_args():
     parser = argparse.ArgumentParser("""Implementation of Deep Q Network to play Procon""")
@@ -17,9 +18,9 @@ def get_args():
     parser.add_argument("--image_size", type=int, default=84, help="The common width and height for all images")
     parser.add_argument("--batch_size", type=int, default=32, help="The number of state per batch")
     parser.add_argument("--optimizer", type=str, choices=["sgd", "adam"], default="adam")
-    parser.add_argument("--lr_actor", type=float, default=3e-5)
-    parser.add_argument("--lr_critic", type=float, default=3e-5)
-    parser.add_argument("--gamma", type=float, default=0.95)
+    parser.add_argument("--lr_actor", type=float, default=1e-6)
+    parser.add_argument("--lr_critic", type=float, default=1e-3)
+    parser.add_argument("--gamma", type=float, default=0.98)
     parser.add_argument("--discount", type=float, default=1)   
     parser.add_argument("--initial_epsilon", type=float, default=0.1)
     parser.add_argument("--final_epsilon", type=float, default=1e-4)
@@ -33,7 +34,7 @@ def get_args():
     parser.add_argument("--saved_path", type=str, default="trained_models")
     parser.add_argument("--show_screen", type=str, default=True)
     parser.add_argument("--load_checkpoint", type=str, default=False)
-    parser.add_argument("--saved_checkpoint", type=str, default=False)   
+    parser.add_argument("--saved_checkpoint", type=str, default=True)   
     
     args, unknown = parser.parse_known_args()
     return args
@@ -47,4 +48,6 @@ if __name__ == "__main__":
         train(opt)
     if opt.run == "interactive":
         interactive(opt)
+    if opt.run == "test_env":
+        test_env(opt)
     

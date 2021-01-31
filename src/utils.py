@@ -22,8 +22,7 @@ def vizualize(arr, name, cl = 'red'):
     # plt.legend(bbox_to_anchor=(0.785, 1), loc='upper left', borderaxespad=0.1)
     # name = name + '.pdf'
     plt.savefig(name,bbox_inches='tight')
-    if(cl == 'blue'):
-       plt.show()
+    plt.show()
     
 
 

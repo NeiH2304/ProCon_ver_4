@@ -55,8 +55,8 @@ class Agent():
         if chkpoint:
             self.load_models()
         else:
-            self.actor = Actor(self.state_dim_actor, self.action_dim)
-            self.critic = Critic(self.state_dim_critic, self.action_dim, num_agent_lim)
+            self.actor = Actor(self.state_dim_actor, self.action_dim, self.action_dim)
+            self.critic = Critic(self.state_dim_critic, self.action_dim)
             
             self.target_actor = copy(self.actor)
             self.target_critic = copy(self.critic)
@@ -130,6 +130,7 @@ class Agent():
         ''' ---------------------- optimize actor ----------------------'''
         _a = self.actor.forward(s)
         loss_actor = -1 * torch.sum(self.critic.forward(s, _a))
+        print(torch.sum(self.critic.forward(s, _a)))
         self.actor_optimizer.zero_grad()
         loss_actor.backward()
         self.actor_optimizer.step()
@@ -372,16 +373,16 @@ class Agent():
         return flatten(_acts)
 
     def learn(self, state, actions_1, actions_2, BGame, show_screen):
-        # act = [actions_1.argmax()]
-        actions = copy(actions_1)
-        for i in range(9):
-            actions[i] = actions[i] ** 3
+        act = [actions_1.argmax()]
+        # actions = copy(actions_1)
+        # for i in range(9):
+        #     actions[i] = actions[i] ** 3
             
-        act = choices([i for i in range(9)], actions) 
+        # act = choices([i for i in range(9)], actions) 
         next_state, reward, done, remaining_turns = self.env.next_frame(
             act, actions_2, BGame, show_screen)
-        if act[0] == 0:
-            reward -= 3
+        # if act[0] == 0:
+        #     reward -= 3
         # action = self.form_action_predict(actions_1)
         state = flatten(state)
         next_state = flatten([next_state[0], next_state[1][0], next_state[2][0]])
